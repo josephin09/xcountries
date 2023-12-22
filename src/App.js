@@ -1,25 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import './App.css'; 
 
-function App() {
+const App = () => {
+  const [countries, setCountries] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch('https://restcountries.com/v3.1/all');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setCountries(data);
+      } catch (error) {
+        setError(error.message);
+        console.error(error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Country Flags</h1>
+      {error && <p>Error: {error}</p>}
+      <div className="country-list">
+        {countries.map((country) => (
+          <div key={country.name.common} className="country-card">
+            <img
+              src={country.flags.png}
+              alt={`${country.name.common} flag`}
+            />
+            <p>{country.name.common}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
-}
+};
 
 export default App;
